@@ -152,7 +152,8 @@ def get_updated_text(json_element):
     return returned_text
 
 
-def reference_update(element, domain):
+def reference_update(elm, domain):
+    element = elm
     if element.tag == 'link' and element.get('href'):
         if element.get('href')[0] == '/':
             element.set('href', 'https://ja.wikipedia.org' + str(element.get('href')))
@@ -161,18 +162,19 @@ def reference_update(element, domain):
         if element.get('href')[0] == '/':
             element.set('href', domain + '/wiki?url=https://ja.wikipedia.org' + str(element.get('href')))
 
-    if element.tag == 'img' and len(element.get('src')) != 0:
+    elif element.tag == 'img':
         if element.get('src')[0:8] == '/static/':
             element.set('src', 'https://ja.wikipedia.org' + str(element.get('src')))
         else:
-            element.set('src', random_img())
-            element.set('srcset', random_img())
+            img_src = random_img()
+            element.set('src', img_src)
+            element.set('srcset', img_src)
 
-    elif len(element.getchildren()) != 0:
+
+    #print(len(element.getchildren()))
+    if len(element.getchildren()) != 0:
         for child_element in element.getchildren():
             reference_update(child_element, domain)
-
-    return element
 
 
 def modify_element(elmt):
@@ -255,18 +257,18 @@ def wiki(request):
         r = requests.get(request.GET.get('url'))
 
     elif request.GET.get('search'):
-        r = requests.get(domain + '/wiki?url=https://ja.wikipedia.org/w/index.php?search=' + str(
+        r = requests.get('https://ja.wikipedia.org/w/index.php?search=' + str(
             request.GET.get('search')))
 
     else:
-        r = requests.get(domain + '/wiki?url=https://ja.wikipedia.org')
+        r = requests.get('https://ja.wikipedia.org')
 
     html_text = r.text
     html_text = html_text.replace('ウィキペディア', '地下ぺディア')
     html_tree = lxml.html.fromstring(html_text)
 
-    html_tree = reference_update(html_tree, domain)
-    html_tree = update(html_tree)
+    reference_update(html_tree, domain)
+    text_update(html_tree)
 
     if html_tree.cssselect('form'):
         for i in html_tree.cssselect('form'):
