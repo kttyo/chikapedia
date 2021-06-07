@@ -6,6 +6,10 @@ import CaboCha
 import xmltodict
 import random
 
+
+domain = 'http://127.0.0.1:8000'
+#domain = 'http://chikapedia.meatthezoo.org'
+
 #c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
 c = CaboCha.Parser()
 
@@ -131,7 +135,7 @@ def reference_update(element):
 
     if element.tag == 'a' and element.get('href'):
         if element.get('href')[0] == '/':
-            element.set('href', 'http://127.0.0.1:8000/wiki?url=https://ja.wikipedia.org' + str(element.get('href')))
+            element.set('href', domain + '/wiki?url=https://ja.wikipedia.org' + str(element.get('href')))
 
     if element.tag == 'img' and element.get('src'):
         if element.get('src')[0:8] == '/static/':
@@ -165,11 +169,11 @@ def wiki(request):
         r = requests.get(request.GET.get('url'))
 
     elif request.GET.get('search'):
-        r = requests.get('http://127.0.0.1:8000/wiki?url=https://ja.wikipedia.org/w/index.php?search=' + str(
+        r = requests.get(domain + '/wiki?url=https://ja.wikipedia.org/w/index.php?search=' + str(
             request.GET.get('search')))
 
     else:
-        r = requests.get('http://127.0.0.1:8000/wiki?url=https://ja.wikipedia.org')
+        r = requests.get(domain + '/wiki?url=https://ja.wikipedia.org')
 
     htmltree = lxml.html.fromstring(r.text)
 
@@ -179,7 +183,7 @@ def wiki(request):
     if htmltree.cssselect('form'):
         for i in htmltree.cssselect('form'):
             if i.get('action'):
-                i.set('action', 'http://127.0.0.1:8000/wiki')
+                i.set('action', domain + '/wiki')
 
     response_html = lxml.html.tostring(htmltree, method='html', encoding="utf-8").decode()
 
