@@ -5,10 +5,11 @@ import lxml.html
 import CaboCha
 import xmltodict
 import random
+import json
 
 
-# c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
-c = CaboCha.Parser()
+c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
+# c = CaboCha.Parser()
 
 
 def skip_brackets(text):
@@ -39,15 +40,15 @@ def skip_brackets(text):
 def split_sentence(p):
     # split by '。', but do not split when within certain brackets
     sentence_list = []
-    sentence = ''
+
     brackets = {
         '「': '」',
         '『': '』',
     }
     bracket_end = None
-
     out_of_brackets = True
 
+    sentence = ''
     for letter in p:
         if out_of_brackets:
             if letter in brackets.keys():
@@ -66,6 +67,9 @@ def split_sentence(p):
                 out_of_brackets = True
             else:
                 sentence += letter
+    if sentence != '\n':
+        sentence_list.append(sentence)
+
 
     return sentence_list
 
@@ -167,24 +171,87 @@ def reference_update(element, domain):
         for child_element in element.getchildren():
             reference_update(child_element, domain)
 
+    return element
 
-def text_update(element):
-    if element.tag == 'p' or element.tag == 'li':
 
-        mod_text = skip_brackets(element.text_content())
-        sentence_list = split_sentence(mod_text)
+def modify_element(elmt):
+    tag_map = []
+    # keep replacement dictionary to revert the html tags after text conversion
+    for i in elmt.getchildren():
+        if i.get('title'):
+            i.attrib.pop('title')
+        child_element = lxml.html.tostring(i, method='html', encoding="utf-8").decode()
+        child_element = child_element[0:child_element.rfind('>')+1]
+        print(child_element)
+        #tag_map[i.text_content()] = child_element
+        tag_map.append({
+            'before': i.text_content(),
+            'after': child_element,
+            'text_length': len(i.text_content())
+        })
 
-        updated_text = ''
+    # sort the dictionary by the length of keyword
+    tag_map_sorted = sorted(tag_map, key = lambda i: i['text_length'])
+    #print(json.dumps(tag_map_sorted, indent=2, ensure_ascii=False))
+
+    # prepare texts
+    print(elmt.text_content())
+    mod_text = skip_brackets(elmt.text_content())
+    print('mod_text '+str(mod_text))
+    sentence_list = split_sentence(mod_text)
+    print(sentence_list)
+
+    # run NLP and put together modified text
+    modified_text = ''
+    if len(sentence_list) > 0:
         for i in sentence_list:
-            json_text = get_json_sentence(i)
-            if json_text['sentence']:
-                updated_text += get_updated_text(json_text)
-                element.text = updated_text
+            if i != '\n':
+                json_text = get_json_sentence(i)
+                if json_text['sentence']:
+                    modified_text += get_updated_text(json_text)
 
-    elif len(element.getchildren()) != 0:
-        for child_element in element.getchildren():
-            text_update(child_element)
+    #print(tag_map_sorted)
 
+    # add html tags back
+    for i in range(len(tag_map_sorted)):
+        modified_text = modified_text.replace(tag_map_sorted[i]['before'], tag_map_sorted[i]['after'])
+    print(modified_text)
+    print('--------------------------------------------------')
+    #print(lxml.html.fromstring(text_with_tags))
+    # remove children from elmt
+    for i in elmt.getchildren():
+        elmt.remove(i)
+
+    elmt.text = ''
+
+    #print(len(elmt.getchildren()))
+
+    if modified_text:
+        elmt.append(lxml.html.fromstring(modified_text))
+    #elmt = lxml.html.fromstring(modified_text)
+    #print(lxml.html.tostring(elmt, method='html', encoding="utf-8").decode())
+
+    # add new children to elmt
+    return elmt
+
+def update(elm):
+    updated_elm = elm
+    def text_update(element):
+        if element.tag == 'p':
+            element = modify_element(element)
+            #modify_element(element)
+            #mod_text = skip_brackets(element.text_content())
+            #sentence_list = split_sentence(mod_text)
+            #print(sentence_list)
+
+
+        elif len(element.getchildren()) != 0:
+            for child_element in element.getchildren():
+                text_update(child_element)
+
+    text_update(updated_elm)
+
+    return updated_elm
 
 def wiki(request):
     domain = request._current_scheme_host
@@ -203,8 +270,8 @@ def wiki(request):
     html_text = html_text.replace('ウィキペディア', '地下ぺディア')
     html_tree = lxml.html.fromstring(html_text)
 
-    reference_update(html_tree, domain)
-    text_update(html_tree)
+    html_tree = reference_update(html_tree, domain)
+    html_tree = update(html_tree)
 
     if html_tree.cssselect('form'):
         for i in html_tree.cssselect('form'):
