@@ -8,7 +8,7 @@ import random
 
 
 #domain = 'http://127.0.0.1:8000'
-domain = 'http://chikapedia.meatthezoo.org'
+#domain = 'http://chikapedia.meatthezoo.org'
 
 #c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
 c = CaboCha.Parser()
@@ -128,7 +128,7 @@ def get_updated_text(json_element):
     return returned_text
 
 
-def reference_update(element):
+def reference_update(element, domain):
     if element.tag == 'link' and element.get('href'):
         if element.get('href')[0] == '/':
             element.set('href', 'https://ja.wikipedia.org' + str(element.get('href')))
@@ -143,7 +143,7 @@ def reference_update(element):
 
     elif len(element.getchildren()) != 0:
         for child_element in element.getchildren():
-            reference_update(child_element)
+            reference_update(child_element, domain)
 
 
 def text_update(element):
@@ -165,6 +165,8 @@ def text_update(element):
 
 
 def wiki(request):
+    domain = request._current_scheme_host
+
     if request.GET.get('url'):
         r = requests.get(request.GET.get('url'))
 
@@ -177,7 +179,7 @@ def wiki(request):
 
     htmltree = lxml.html.fromstring(r.text)
 
-    reference_update(htmltree)
+    reference_update(htmltree, domain)
     text_update(htmltree)
 
     if htmltree.cssselect('form'):
