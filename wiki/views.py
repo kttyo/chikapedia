@@ -7,10 +7,7 @@ import xmltodict
 import random
 
 
-#domain = 'http://127.0.0.1:8000'
-#domain = 'http://chikapedia.meatthezoo.org'
-
-#c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
+# c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
 c = CaboCha.Parser()
 
 
@@ -109,6 +106,28 @@ def random_text():
     else:
         return ''
 
+def random_img():
+    if random.random() > 0.9:
+        return 'https://images-na.ssl-images-amazon.com/images/I/51D021M66VL._SX338_BO1,204,203,200_.jpg'
+    elif random.random() > 0.8:
+        return 'https://s.yimg.jp/images/bookstore/ebook/web/content/image/etc/kaiji/itoukaiji.jpg'
+    elif random.random() > 0.7:
+        return 'https://s.yimg.jp/images/bookstore/ebook/web/content/image/etc/kaiji/ohtsuki.jpg'
+    elif random.random() > 0.6:
+        return 'https://s.yimg.jp/images/bookstore/ebook/web/content/image/etc/kaiji/hyoudoukazutaka.jpg'
+    elif random.random() > 0.5:
+        return 'https://s.yimg.jp/images/bookstore/ebook/web/content/image/etc/kaiji/endouyuji.jpg'
+    elif random.random() > 0.4:
+        return 'https://animemiru.jp/wp-content/uploads/2018/05/r-tonegawa01.jpg'
+    elif random.random() > 0.3:
+        return 'https://prtimes.jp/i/1719/1531/resize/d1719-1531-467330-0.jpg'
+    elif random.random() > 0.2:
+        return 'https://pbs.twimg.com/media/EOe8dtxU4AAiCzY.jpg'
+    elif random.random() > 0.1:
+        return 'https://livedoor.blogimg.jp/suko_ch-chansoku/imgs/4/1/417f3422-s.jpg'
+    else:
+        return ''
+
 
 def get_updated_text(json_element):
     returned_text = ''
@@ -133,13 +152,15 @@ def reference_update(element, domain):
         if element.get('href')[0] == '/':
             element.set('href', 'https://ja.wikipedia.org' + str(element.get('href')))
 
-    if element.tag == 'a' and element.get('href'):
+    elif element.tag == 'a' and element.get('href'):
         if element.get('href')[0] == '/':
             element.set('href', domain + '/wiki?url=https://ja.wikipedia.org' + str(element.get('href')))
 
-    if element.tag == 'img' and element.get('src'):
+    if element.tag == 'img' and len(element.get('src')) != 0:
         if element.get('src')[0:8] == '/static/':
             element.set('src', 'https://ja.wikipedia.org' + str(element.get('src')))
+        else:
+            element.set('src', random_img())
 
     elif len(element.getchildren()) != 0:
         for child_element in element.getchildren():
@@ -177,16 +198,18 @@ def wiki(request):
     else:
         r = requests.get(domain + '/wiki?url=https://ja.wikipedia.org')
 
-    htmltree = lxml.html.fromstring(r.text)
+    html_text = r.text
+    html_text = html_text.replace('ウィキペディア', '地下ぺディア')
+    html_tree = lxml.html.fromstring(html_text)
 
-    reference_update(htmltree, domain)
-    text_update(htmltree)
+    reference_update(html_tree, domain)
+    text_update(html_tree)
 
-    if htmltree.cssselect('form'):
-        for i in htmltree.cssselect('form'):
+    if html_tree.cssselect('form'):
+        for i in html_tree.cssselect('form'):
             if i.get('action'):
                 i.set('action', domain + '/wiki')
 
-    response_html = lxml.html.tostring(htmltree, method='html', encoding="utf-8").decode()
+    response_html = lxml.html.tostring(html_tree, method='html', encoding="utf-8").decode()
 
     return HttpResponse(response_html)  # directly returns http response
