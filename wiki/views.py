@@ -10,7 +10,7 @@ import json
 
 #c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
 c = CaboCha.Parser('-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd')
-#c = CaboCha.Parser()
+ = CaboCha.Parser()
 
 
 def skip_brackets(text):
@@ -233,26 +233,20 @@ def modify_element(elmt):
     #print(lxml.html.tostring(elmt, method='html', encoding="utf-8").decode())
 
     # add new children to elmt
-    return elmt
 
-def update(elm):
-    updated_elm = elm
-    def text_update(element):
-        if element.tag == 'p':
-            element = modify_element(element)
-            #modify_element(element)
-            #mod_text = skip_brackets(element.text_content())
-            #sentence_list = split_sentence(mod_text)
-            #print(sentence_list)
+def text_update(element):
+    if element.tag == 'p':
+        modify_element(element)
+        #modify_element(element)
+        #mod_text = skip_brackets(element.text_content())
+        #sentence_list = split_sentence(mod_text)
+        #print(sentence_list)
 
 
-        elif len(element.getchildren()) != 0:
-            for child_element in element.getchildren():
-                text_update(child_element)
+    elif len(element.getchildren()) != 0:
+        for child_element in element.getchildren():
+            text_update(child_element)
 
-    text_update(updated_elm)
-
-    return updated_elm
 
 def wiki(request):
     domain = request._current_scheme_host
