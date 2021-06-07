@@ -8,8 +8,8 @@ import random
 import json
 
 
-#c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
-c = CaboCha.Parser('-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd')
+c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
+#c = CaboCha.Parser('-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd')
 #c = CaboCha.Parser()
 
 
@@ -159,14 +159,21 @@ def reference_update(elm, domain):
             element.set('href', 'https://ja.wikipedia.org' + str(element.get('href')))
 
     elif element.tag == 'a' and element.get('href'):
+        if element.get('title'):
+            element.attrib.pop('title')
         if element.get('href')[0] == '/':
             element.set('href', domain + '/wiki?url=https://ja.wikipedia.org' + str(element.get('href')))
 
     elif element.tag == 'img':
+        if element.get('alt'):
+            element.attrib.pop('alt')
+        if element.get('title'):
+            element.attrib.pop('title')
         if element.get('src')[0:8] == '/static/':
             element.set('src', 'https://ja.wikipedia.org' + str(element.get('src')))
         else:
             img_src = random_img()
+            #img_src = '#'
             element.set('src', img_src)
             element.set('srcset', img_src)
 
@@ -181,17 +188,16 @@ def modify_element(elmt):
     tag_map = []
     # keep replacement dictionary to revert the html tags after text conversion
     for i in elmt.getchildren():
-        if i.get('title'):
-            i.attrib.pop('title')
         child_element = lxml.html.tostring(i, method='html', encoding="utf-8").decode()
         child_element = child_element[0:child_element.rfind('>')+1]
         print(child_element)
         #tag_map[i.text_content()] = child_element
-        tag_map.append({
-            'before': i.text_content(),
-            'after': child_element,
-            'text_length': len(i.text_content())
-        })
+        if len(i.text_content()) > 0:
+            tag_map.append({
+                'before': i.text_content(),
+                'after': child_element,
+                'text_length': len(i.text_content())
+            })
 
     # sort the dictionary by the length of keyword
     tag_map_sorted = sorted(tag_map, key = lambda i: i['text_length'])
@@ -213,28 +219,21 @@ def modify_element(elmt):
                 if json_text['sentence']:
                     modified_text += get_updated_text(json_text)
 
-    #print(tag_map_sorted)
+    print('modified_text ' + str(modified_text))
+    print(json.dumps(tag_map_sorted, indent=2, ensure_ascii=False))
+
 
     # add html tags back
     for i in range(len(tag_map_sorted)):
         modified_text = modified_text.replace(tag_map_sorted[i]['before'], tag_map_sorted[i]['after'])
     print(modified_text)
     print('--------------------------------------------------')
-    #print(lxml.html.fromstring(text_with_tags))
-    # remove children from elmt
+
     for i in elmt.getchildren():
         elmt.remove(i)
 
-    elmt.text = ''
-
-    #print(len(elmt.getchildren()))
-
     if modified_text:
         elmt.append(lxml.html.fromstring(modified_text))
-    #elmt = lxml.html.fromstring(modified_text)
-    #print(lxml.html.tostring(elmt, method='html', encoding="utf-8").decode())
-
-    # add new children to elmt
 
 def text_update(element):
     if element.tag == 'p':
