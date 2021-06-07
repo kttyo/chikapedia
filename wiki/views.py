@@ -7,8 +7,8 @@ import xmltodict
 import random
 
 
-domain = 'http://127.0.0.1:8000'
-#domain = 'http://chikapedia.meatthezoo.org'
+#domain = 'http://127.0.0.1:8000'
+domain = 'http://chikapedia.meatthezoo.org'
 
 #c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
 c = CaboCha.Parser()
