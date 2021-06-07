@@ -161,6 +161,7 @@ def reference_update(element, domain):
             element.set('src', 'https://ja.wikipedia.org' + str(element.get('src')))
         else:
             element.set('src', random_img())
+            element.set('srcset', random_img())
 
     elif len(element.getchildren()) != 0:
         for child_element in element.getchildren():
