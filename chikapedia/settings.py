@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from .settings_common import *
 from pathlib import Path
 
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
