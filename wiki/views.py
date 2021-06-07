@@ -9,7 +9,8 @@ import json
 
 
 #c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
-c = CaboCha.Parser()
+c = CaboCha.Parser('-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd')
+#c = CaboCha.Parser()
 
 
 def skip_brackets(text):
