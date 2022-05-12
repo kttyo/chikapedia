@@ -6,9 +6,15 @@ import CaboCha
 import xmltodict
 import random
 import json
+from os import path
+
+if path.exists('/usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd'):
+    c = CaboCha.Parser('-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd')
+elif path.exists('/usr/local/lib/mecab/dic/mecab-ipadic-neologd'):
+    c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
 
 # c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
-c = CaboCha.Parser('-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd')
+# c = CaboCha.Parser('-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd')
 
 
 # c = CaboCha.Parser()
