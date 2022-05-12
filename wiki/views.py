@@ -7,10 +7,11 @@ import xmltodict
 import random
 import json
 
-
-#c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
+# c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
 c = CaboCha.Parser('-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd')
-#c = CaboCha.Parser()
+
+
+# c = CaboCha.Parser()
 
 
 def skip_brackets(text):
@@ -71,7 +72,6 @@ def split_sentence(p):
     if sentence != '\n':
         sentence_list.append(sentence)
 
-
     return sentence_list
 
 
@@ -110,6 +110,7 @@ def random_text():
         return 'キンキンに冷えた'
     else:
         return ''
+
 
 def random_img():
     if random.random() > 0.9:
@@ -173,12 +174,11 @@ def reference_update(elm, domain):
             element.set('src', 'https://ja.wikipedia.org' + str(element.get('src')))
         else:
             img_src = random_img()
-            #img_src = '#'
+            # img_src = '#'
             element.set('src', img_src)
             element.set('srcset', img_src)
 
-
-    #print(len(element.getchildren()))
+    # print(len(element.getchildren()))
     if len(element.getchildren()) != 0:
         for child_element in element.getchildren():
             reference_update(child_element, domain)
@@ -189,9 +189,9 @@ def modify_element(elmt):
     # keep replacement dictionary to revert the html tags after text conversion
     for i in elmt.getchildren():
         child_element = lxml.html.tostring(i, method='html', encoding="utf-8").decode()
-        child_element = child_element[0:child_element.rfind('>')+1]
+        child_element = child_element[0:child_element.rfind('>') + 1]
         print(child_element)
-        #tag_map[i.text_content()] = child_element
+        # tag_map[i.text_content()] = child_element
         if len(i.text_content()) > 0:
             tag_map.append({
                 'before': i.text_content(),
@@ -200,13 +200,13 @@ def modify_element(elmt):
             })
 
     # sort the dictionary by the length of keyword
-    tag_map_sorted = sorted(tag_map, key = lambda i: i['text_length'])
-    #print(json.dumps(tag_map_sorted, indent=2, ensure_ascii=False))
+    tag_map_sorted = sorted(tag_map, key=lambda i: i['text_length'])
+    # print(json.dumps(tag_map_sorted, indent=2, ensure_ascii=False))
 
     # prepare texts
     print(elmt.text_content())
     mod_text = skip_brackets(elmt.text_content())
-    print('mod_text '+str(mod_text))
+    print('mod_text ' + str(mod_text))
     sentence_list = split_sentence(mod_text)
     print(sentence_list)
 
@@ -222,7 +222,6 @@ def modify_element(elmt):
     print('modified_text ' + str(modified_text))
     print(json.dumps(tag_map_sorted, indent=2, ensure_ascii=False))
 
-
     # add html tags back
     for i in range(len(tag_map_sorted)):
         modified_text = modified_text.replace(tag_map_sorted[i]['before'], tag_map_sorted[i]['after'])
@@ -235,13 +234,14 @@ def modify_element(elmt):
     if modified_text:
         elmt.append(lxml.html.fromstring(modified_text))
 
+
 def text_update(element):
     if element.tag == 'p':
         modify_element(element)
-        #modify_element(element)
-        #mod_text = skip_brackets(element.text_content())
-        #sentence_list = split_sentence(mod_text)
-        #print(sentence_list)
+        # modify_element(element)
+        # mod_text = skip_brackets(element.text_content())
+        # sentence_list = split_sentence(mod_text)
+        # print(sentence_list)
 
 
     elif len(element.getchildren()) != 0:
@@ -255,7 +255,7 @@ def wiki(request):
     if request.GET.get('url'):
         r = requests.get(request.GET.get('url'))
 
-    elif request.GET.get('search'):
+    elif request.GET.get('search'):  # check if URL contains parameter "search"
         r = requests.get('https://ja.wikipedia.org/w/index.php?search=' + str(
             request.GET.get('search')))
 
