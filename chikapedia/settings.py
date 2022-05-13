@@ -13,13 +13,13 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from .settings_common import *
 from pathlib import Path
 from .local_settings import SECRET_KEY as sk
-
-SECRET_KEY = sk
+from .local_settings import ALLOWED_HOSTS as ah
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['chikapedia.meatthezoo.org']
+SECRET_KEY = sk
+ALLOWED_HOSTS = ah
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
