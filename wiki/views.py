@@ -142,21 +142,24 @@ def random_img():
 
 
 def get_updated_text(json_element):
-    returned_text = ''
+    """
+    Get JSON element and construct Kaiji-like sentence.
+    """
+    updated_text = ''
     for i in json_element['sentence']['chunk']:
         for j in i['tok']:
             if 'surface' in j.keys():
                 if j['feature'][0] == '名詞' and j['feature'][1] == '一般':
-                    returned_text += random_text()
-                    returned_text += j['surface']
+                    updated_text += random_text()
+                    updated_text += j['surface']
                 elif j['feature'][0] == '名詞' and j['feature'][1] == 'サ変接続':
-                    returned_text += '圧倒的'
-                    returned_text += j['surface']
+                    updated_text += '圧倒的'
+                    updated_text += j['surface']
                 else:
-                    returned_text += j['surface']
-        returned_text += '...'
-    returned_text += '！'
-    return returned_text
+                    updated_text += j['surface']
+        updated_text += '...'
+    updated_text += '！'
+    return updated_text
 
 
 def reference_update(elm, domain):
