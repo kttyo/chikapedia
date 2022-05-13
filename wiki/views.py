@@ -13,15 +13,11 @@ if path.exists('/usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd'):
 elif path.exists('/usr/local/lib/mecab/dic/mecab-ipadic-neologd'):
     c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
 
-# c = CaboCha.Parser('-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd')
-# c = CaboCha.Parser('-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd')
-
-
-# c = CaboCha.Parser()
-
 
 def skip_brackets(text):
-    # skip certain brackets and content within them
+    """
+    skip certain brackets and content within them
+    """
     brackets = {
         '[': ']',
         '(': ')',
@@ -46,7 +42,9 @@ def skip_brackets(text):
 
 
 def split_sentence(p):
-    # split by '。', but do not split when within certain brackets
+    """
+    split by '。', but do not split when within certain brackets
+    """
     sentence_list = []
 
     brackets = {
@@ -82,7 +80,9 @@ def split_sentence(p):
 
 
 def get_json_sentence(source_sentence):
-    # turn a text into XML and then to JSON
+    """
+    turn a text into XML and then to JSON
+    """
     tree = c.parse(source_sentence)
     xmltree = tree.toString(CaboCha.FORMAT_XML)
     jsonobj = xmltodict.parse(xmltree, attr_prefix='', cdata_key='surface', dict_constructor=dict)
@@ -191,6 +191,9 @@ def reference_update(elm, domain):
 
 
 def modify_element(elmt):
+    """
+    Receives HTML element and modifies it.
+    """
     tag_map = []
     # keep replacement dictionary to revert the html tags after text conversion
     for i in elmt.getchildren():
@@ -242,6 +245,9 @@ def modify_element(elmt):
 
 
 def text_update(element):
+    """
+    Recursively look for certain html tags and pass it to modify_element function.
+    """
     if element.tag == 'p':
         modify_element(element)
         # modify_element(element)
@@ -256,6 +262,9 @@ def text_update(element):
 
 
 def wiki(request):
+    """
+    Take request, create html tree, and return as Httpresponse
+    """
     domain = request._current_scheme_host
 
     if request.GET.get('url'):
@@ -268,6 +277,7 @@ def wiki(request):
     else:
         r = requests.get('https://ja.wikipedia.org')
 
+    # Start updating the HTML
     html_text = r.text
     html_text = html_text.replace('ウィキペディア', '地下ぺディア')
     html_tree = lxml.html.fromstring(html_text)
