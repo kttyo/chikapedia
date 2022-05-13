@@ -1,12 +1,13 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-import requests
-import lxml.html
 import CaboCha
-import xmltodict
-import random
+from django.http import HttpResponse
+from django.shortcuts import render
 import json
+import lxml.html
 from os import path
+import random
+import requests
+import xmltodict
+
 
 if path.exists('/usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd'):
     c = CaboCha.Parser('-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd')
