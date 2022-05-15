@@ -212,7 +212,7 @@ def modify_element(elmt):
                 'text_length': len(i.text_content())
             })
 
-    # sort the dictionary by the length of keyword
+    # Sort the dictionary by the length of keyword
     tag_map_sorted = sorted(tag_map, key=lambda i: i['text_length'])
     # print(json.dumps(tag_map_sorted, indent=2, ensure_ascii=False))
 
