@@ -196,20 +196,22 @@ def reference_update(elm, domain):
 
 def modify_element(elmt):
     """
-    Receives HTML element and modifies it.
+    Receives HTML element, modifies it, and replaces the HTML element.
     """
-    tag_map = []
+    print(elmt.text_content())
+
     # keep replacement dictionary to revert the html tags after text conversion
-    for i in elmt.getchildren():
-        child_element = lxml.html.tostring(i, method='html', encoding="utf-8").decode()
+    tag_map = []
+    for child in elmt.getchildren():
+        child_element = lxml.html.tostring(child, method='html', encoding="utf-8").decode()
         child_element = child_element[0:child_element.rfind('>') + 1]
         print(child_element)
         # tag_map[i.text_content()] = child_element
-        if len(i.text_content()) > 0:
+        if len(child.text_content()) > 0:
             tag_map.append({
-                'before': i.text_content(),
+                'before': child.text_content(),
                 'after': child_element,
-                'text_length': len(i.text_content())
+                'text_length': len(child.text_content())
             })
 
     # Sort the dictionary by the length of keyword
@@ -217,7 +219,6 @@ def modify_element(elmt):
     # print(json.dumps(tag_map_sorted, indent=2, ensure_ascii=False))
 
     # prepare texts
-    print(elmt.text_content())
     mod_text = skip_brackets(elmt.text_content())
     print('mod_text ' + str(mod_text))
     sentence_list = split_sentence(mod_text)
@@ -238,31 +239,28 @@ def modify_element(elmt):
     # add html tags back
     for i in range(len(tag_map_sorted)):
         modified_text = modified_text.replace(tag_map_sorted[i]['before'], tag_map_sorted[i]['after'])
-    print(modified_text)
-    print('--------------------------------------------------')
 
-    for i in elmt.getchildren():
-        elmt.remove(i)
-
+    # Replace the current element with the modified element
     if modified_text:
-        elmt.append(lxml.html.fromstring(modified_text))
+        print(f'modified: {modified_text}')
+        elmt.parent = elmt.getparent().replace(elmt,lxml.html.fromstring(modified_text))
+
+    print('--------------------------------------------------')
 
 
 def text_update(element):
     """
-    Recursively look for certain html tags and pass it to modify_element function.
+    Recursively look for p tag and pass it to modify_element function.
     """
     if element.tag == 'p':
         modify_element(element)
-        # modify_element(element)
-        # mod_text = skip_brackets(element.text_content())
-        # sentence_list = split_sentence(mod_text)
-        # print(sentence_list)
 
-
-    elif len(element.getchildren()) != 0:
+    elif len(element.getchildren()) > 0:
         for child_element in element.getchildren():
             text_update(child_element)
+
+    else:
+        return
 
 
 def wiki(request):
