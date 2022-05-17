@@ -112,14 +112,30 @@ def random_text():
     """
     Return Kaiji-like phrases
     """
-    if random.random() > 0.9:
+    random_value = random.random()
+    if random_value > 0.9:
         return '悪魔的'
-    elif random.random() > 0.8:
-        return '悪魔的'
-    elif random.random() > 0.7:
+    elif random_value > 0.8:
+        return '圧倒的'
+    elif random_value > 0.7:
         return 'キンキンに冷えた'
     else:
         return ''
+
+
+def random_name(actual_value):
+    """
+    Return Kaiji-like name
+    """
+    random_value = random.random()
+    if random_value > 0.8:
+        return 'カイジ'
+    elif random_value > 0.6:
+        return '利根川'
+    elif random_value > 0.4:
+        return '藤原竜也'
+    else:
+        return actual_value
 
 
 def random_img():
@@ -149,6 +165,7 @@ def get_kaiji_sentence(json_element):
     """
     Get JSON element and construct Kaiji-like sentence.
     """
+    print(json.dumps(json_element, indent=2, ensure_ascii=False))
     kaiji_sentence = ''
     for chunk in json_element['sentence']['chunk']:
         for token in chunk['tok']:
@@ -157,8 +174,10 @@ def get_kaiji_sentence(json_element):
                     kaiji_sentence += random_text()
                     kaiji_sentence += token['surface']
                 elif token['feature'][0] == '名詞' and token['feature'][1] == 'サ変接続':
-                    kaiji_sentence += '圧倒的'
+                    kaiji_sentence += random_text()
                     kaiji_sentence += token['surface']
+                elif token['feature'][1] == '固有名詞' and token['feature'][2] == '人名' and token['feature'][3] == '一般':
+                    kaiji_sentence += random_name(token['surface'])
                 else:
                     kaiji_sentence += token['surface']
         kaiji_sentence += '...'
@@ -204,14 +223,14 @@ def modify_element(elmt):
     """
     Receives HTML element, modifies it, and replaces the HTML element.
     """
-    print(elmt.text_content())
+    # print(elmt.text_content())
 
     # keep replacement dictionary to revert the html tags after text conversion
     tag_map = []
     for child in elmt.getchildren():
         child_element = lxml.html.tostring(child, method='html', encoding="utf-8").decode()
         child_element = child_element[0:child_element.rfind('>') + 1]
-        print(child_element)
+        # print(child_element)
         # tag_map[i.text_content()] = child_element
         if len(child.text_content()) > 0:
             tag_map.append({
@@ -241,8 +260,8 @@ def modify_element(elmt):
         if json_text['sentence']:
             kaiji_text += get_kaiji_sentence(json_text)
 
-    print('kaiji_text ' + str(kaiji_text))
-    print(json.dumps(tag_map_sorted, indent=2, ensure_ascii=False))
+    # print('kaiji_text ' + str(kaiji_text))
+    # print(json.dumps(tag_map_sorted, indent=2, ensure_ascii=False))
 
     # add html tags back
     for tag in tag_map_sorted:
@@ -250,7 +269,7 @@ def modify_element(elmt):
 
     # Replace the current element with the modified element
     if kaiji_text:
-        print(f'modified: {kaiji_text}')
+        # print(f'modified: {kaiji_text}')
         elmt.parent = elmt.getparent().replace(elmt,lxml.html.fromstring(kaiji_text))
 
     print('--------------------------------------------------')
@@ -260,7 +279,7 @@ def text_update(element):
     """
     Recursively look for p tag and pass it to modify_element function.
     """
-    if element.tag == 'p':
+    if element.tag in ['p']:
         modify_element(element)
 
     elif len(element.getchildren()) > 0:
