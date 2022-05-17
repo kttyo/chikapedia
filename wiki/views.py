@@ -149,21 +149,21 @@ def get_kaiji_sentence(json_element):
     """
     Get JSON element and construct Kaiji-like sentence.
     """
-    updated_text = ''
-    for i in json_element['sentence']['chunk']:
-        for j in i['tok']:
-            if 'surface' in j.keys():
-                if j['feature'][0] == '名詞' and j['feature'][1] == '一般':
-                    updated_text += random_text()
-                    updated_text += j['surface']
-                elif j['feature'][0] == '名詞' and j['feature'][1] == 'サ変接続':
-                    updated_text += '圧倒的'
-                    updated_text += j['surface']
+    kaiji_sentence = ''
+    for chunk in json_element['sentence']['chunk']:
+        for token in chunk['tok']:
+            if 'surface' in token.keys():
+                if token['feature'][0] == '名詞' and token['feature'][1] == '一般':
+                    kaiji_sentence += random_text()
+                    kaiji_sentence += token['surface']
+                elif token['feature'][0] == '名詞' and token['feature'][1] == 'サ変接続':
+                    kaiji_sentence += '圧倒的'
+                    kaiji_sentence += token['surface']
                 else:
-                    updated_text += j['surface']
-        updated_text += '...'
-    updated_text += '！'
-    return updated_text
+                    kaiji_sentence += token['surface']
+        kaiji_sentence += '...'
+    kaiji_sentence += '！'
+    return kaiji_sentence
 
 
 def reference_update(elm, domain):
@@ -231,7 +231,7 @@ def modify_element(elmt):
     sentence_list = split_sentence(mod_text)
     sentence_list = [sentence for sentence in sentence_list if sentence != '\n']
 
-    if len(sentence_list) > 0:
+    if len(sentence_list) == 0:
         return
 
     # Run NLP on each sentence and put together kaiji-like text
