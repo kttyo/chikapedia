@@ -145,7 +145,7 @@ def random_img():
         return ''
 
 
-def get_updated_text(json_element):
+def get_kaiji_sentence(json_element):
     """
     Get JSON element and construct Kaiji-like sentence.
     """
@@ -227,29 +227,34 @@ def modify_element(elmt):
     # prepare texts
     mod_text = skip_brackets(elmt.text_content())
     sentence_list = split_sentence(mod_text)
+    sentence_list = [sentence for sentence in sentence_list if sentence != '\n']
+
     for sentence in sentence_list:
         print(sentence)
 
-    # run NLP and put together modified text
-    modified_text = ''
-    if len(sentence_list) > 0:
-        for sentence in sentence_list:
-            if sentence != '\n':
-                json_text = get_json_sentence(sentence)
-                if json_text['sentence']:
-                    modified_text += get_updated_text(json_text)
 
-    print('modified_text ' + str(modified_text))
+    if len(sentence_list) > 0:
+        return
+
+
+    # run NLP and put together kaiji-like text
+    kaiji_text = ''
+    for sentence in sentence_list:
+        json_text = get_json_sentence(sentence)
+        if json_text['sentence']:
+            kaiji_text += get_kaiji_sentence(json_text)
+
+    print('kaiji_text ' + str(kaiji_text))
     print(json.dumps(tag_map_sorted, indent=2, ensure_ascii=False))
 
     # add html tags back
     for tag in tag_map_sorted:
-        modified_text = modified_text.replace(tag['before'], tag['after'])
+        kaiji_text = kaiji_text.replace(tag['before'], tag['after'])
 
     # Replace the current element with the modified element
-    if modified_text:
-        print(f'modified: {modified_text}')
-        elmt.parent = elmt.getparent().replace(elmt,lxml.html.fromstring(modified_text))
+    if kaiji_text:
+        print(f'modified: {kaiji_text}')
+        elmt.parent = elmt.getparent().replace(elmt,lxml.html.fromstring(kaiji_text))
 
     print('--------------------------------------------------')
 
