@@ -226,16 +226,16 @@ def modify_element(elmt):
 
     # prepare texts
     mod_text = skip_brackets(elmt.text_content())
-    print('mod_text ' + str(mod_text))
     sentence_list = split_sentence(mod_text)
-    print(sentence_list)
+    for sentence in sentence_list:
+        print(sentence)
 
     # run NLP and put together modified text
     modified_text = ''
     if len(sentence_list) > 0:
-        for i in sentence_list:
-            if i != '\n':
-                json_text = get_json_sentence(i)
+        for sentence in sentence_list:
+            if sentence != '\n':
+                json_text = get_json_sentence(sentence)
                 if json_text['sentence']:
                     modified_text += get_updated_text(json_text)
 
@@ -243,8 +243,8 @@ def modify_element(elmt):
     print(json.dumps(tag_map_sorted, indent=2, ensure_ascii=False))
 
     # add html tags back
-    for i in range(len(tag_map_sorted)):
-        modified_text = modified_text.replace(tag_map_sorted[i]['before'], tag_map_sorted[i]['after'])
+    for tag in tag_map_sorted:
+        modified_text = modified_text.replace(tag['before'], tag['after'])
 
     # Replace the current element with the modified element
     if modified_text:
