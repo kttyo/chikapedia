@@ -109,6 +109,9 @@ def get_json_sentence(source_sentence):
 
 
 def random_text():
+    """
+    Return Kaiji-like phrases
+    """
     if random.random() > 0.9:
         return '悪魔的'
     elif random.random() > 0.8:
