@@ -178,10 +178,14 @@ def get_kaiji_sentence(json_element):
                     kaiji_sentence += token['surface']
                 elif token['feature'][1] == '固有名詞' and token['feature'][2] == '人名' and token['feature'][3] == '一般':
                     kaiji_sentence += random_name(token['surface'])
+                elif token['feature'][0] == '記号' and token['feature'][1] == '読点':
+                    kaiji_sentence += '...'
                 else:
                     kaiji_sentence += token['surface']
-        kaiji_sentence += '...'
-    kaiji_sentence += '！'
+        if kaiji_sentence[-1] != ['、'] and kaiji_sentence[-3:] != '...':
+            kaiji_sentence += '...'
+
+    kaiji_sentence = kaiji_sentence[:len(kaiji_sentence)-3] + 'っ...！'
     return kaiji_sentence
 
 
