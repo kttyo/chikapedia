@@ -226,18 +226,15 @@ def modify_element(elmt):
 
     # prepare texts
     mod_text = skip_brackets(elmt.text_content())
+
+    # Create sentence list
     sentence_list = split_sentence(mod_text)
     sentence_list = [sentence for sentence in sentence_list if sentence != '\n']
-
-    for sentence in sentence_list:
-        print(sentence)
-
 
     if len(sentence_list) > 0:
         return
 
-
-    # run NLP and put together kaiji-like text
+    # Run NLP on each sentence and put together kaiji-like text
     kaiji_text = ''
     for sentence in sentence_list:
         json_text = get_json_sentence(sentence)
