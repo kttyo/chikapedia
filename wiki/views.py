@@ -164,6 +164,9 @@ def get_updated_text(json_element):
 
 
 def reference_update(elm, domain):
+    """
+    Updates Reference
+    """
     element = elm
     if element.tag == 'link' and element.get('href'):
         if element.get('href')[0] == '/':
