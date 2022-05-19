@@ -139,26 +139,27 @@ def random_name(actual_value):
 
 
 def random_img():
-    if random.random() > 0.9:
+    random_value = random.random()
+    if random_value > 0.9:
         return 'https://images-na.ssl-images-amazon.com/images/I/51D021M66VL._SX338_BO1,204,203,200_.jpg'
-    elif random.random() > 0.8:
+    elif random_value > 0.8:
         return 'https://s.yimg.jp/images/bookstore/ebook/web/content/image/etc/kaiji/itoukaiji.jpg'
-    elif random.random() > 0.7:
+    elif random_value > 0.7:
         return 'https://s.yimg.jp/images/bookstore/ebook/web/content/image/etc/kaiji/ohtsuki.jpg'
-    elif random.random() > 0.6:
+    elif random_value > 0.6:
         return 'https://s.yimg.jp/images/bookstore/ebook/web/content/image/etc/kaiji/hyoudoukazutaka.jpg'
-    elif random.random() > 0.5:
+    elif random_value > 0.5:
         return 'https://s.yimg.jp/images/bookstore/ebook/web/content/image/etc/kaiji/endouyuji.jpg'
-    elif random.random() > 0.4:
+    elif random_value > 0.4:
         return 'https://animemiru.jp/wp-content/uploads/2018/05/r-tonegawa01.jpg'
-    elif random.random() > 0.3:
+    elif random_value > 0.3:
         return 'https://prtimes.jp/i/1719/1531/resize/d1719-1531-467330-0.jpg'
-    elif random.random() > 0.2:
+    elif random_value > 0.2:
         return 'https://pbs.twimg.com/media/EOe8dtxU4AAiCzY.jpg'
-    elif random.random() > 0.1:
+    elif random_value > 0.1:
         return 'https://livedoor.blogimg.jp/suko_ch-chansoku/imgs/4/1/417f3422-s.jpg'
     else:
-        return ''
+        return 'https://yoyo-hp.com/wp-content/uploads/2022/01/d099d886ed65ef765625779e628d2c5f-3.jpeg'
 
 
 def get_kaiji_sentence(json_element):
@@ -184,8 +185,9 @@ def get_kaiji_sentence(json_element):
                     kaiji_sentence += 'は...とどのつまり...'
                 else:
                     kaiji_sentence += token['surface']
-        if kaiji_sentence[-1] != ['、'] and kaiji_sentence[-3:] != '...':
-            kaiji_sentence += '...'
+        if len(kaiji_sentence) > 3:
+            if kaiji_sentence[-1] != ['、'] and kaiji_sentence[-3:] != '...':
+                kaiji_sentence += '...'
 
     kaiji_sentence = kaiji_sentence[:len(kaiji_sentence)-3] + 'っ...！'
     return kaiji_sentence
