@@ -166,7 +166,7 @@ def get_kaiji_sentence(json_element):
     """
     Get JSON element and construct Kaiji-like sentence.
     """
-    print(json.dumps(json_element, indent=2, ensure_ascii=False))
+    # print(json.dumps(json_element, indent=2, ensure_ascii=False))
     kaiji_sentence = ''
     for chunk in json_element['sentence']['chunk']:
         for token in chunk['tok']:
