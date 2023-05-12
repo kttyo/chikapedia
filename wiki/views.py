@@ -280,7 +280,7 @@ def modify_element(elmt):
         # print(f'modified: {kaiji_text}')
         elmt.parent = elmt.getparent().replace(elmt,lxml.html.fromstring(kaiji_text))
 
-    print('--------------------------------------------------')
+    # print('--------------------------------------------------')
 
 
 def text_update(element):
